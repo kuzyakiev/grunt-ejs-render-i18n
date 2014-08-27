@@ -16,8 +16,9 @@ module.exports = function(grunt) {
 		marked 	= require('marked'),
 		_ 		= require('lodash'),
 		gettext	= require('node-gettext'),
-		gt     	= new gettext();
+		gt     	= new gettext(),
 		sprintf = require('sprintf').sprintf;
+
 
 	//add `underscore.string` for deprecated `grunt.util._` compat
 	_.str = require('underscore.string');
@@ -158,32 +159,40 @@ module.exports = function(grunt) {
 
 		//options._ = _;
 
-		if(options.languages && options.languages.length) {
+		options.gettext = function(){
+			if(!arguments.length) return '';
+			var a = arguments;
+			a[0] = gt.gettext(arguments[0]);
+			return sprintf.apply(null, a);
+		};
+
+		if(options.languages && options.languages.length && options.locales ) {
 			var that = this;
 			options.languages.forEach(function (language) {
-				console.log(language);
+				var fileContents = fs.readFileSync(options.locales.replace('%language%',language));
+				gt.textdomain(language);
+				gt.addTextdomain(language , fileContents);
+
+				grunt.log.writeln('Processing',language.toUpperCase(),'...');
 				that.files.forEach(function(file) {
+
+					console.log(file.src);
+
 					var contents = file.src.map(function(filepath) {
 						options.filename = filepath;
 						return render(filepath, options);
 					}).join('\n');
 
-					var domain          = 'ru';
-					var fileContents = fs.readFileSync('./locale/'+language+'/messages.po');
-					gt.textdomain(domain);
-					gt.addTextdomain(domain , fileContents);
+					file.src.forEach(function(filepath){
+						contents = render(filepath, options);
+						filepath = filepath.replace(options.toReplace, file.dest.replace('%language%',language));
 
-					options.gettext = function(){
-						if(!arguments.length) return '';
-						var a = arguments;
-						a[0] = gt.gettext(arguments[0]);
-						return sprintf.apply(null, a);
-					};
+						console.log(filepath);
 
+						grunt.file.write(filepath, contents);
+					});
 
 					// Write joined contents to destination filepath.
-					console.log(file.dest.replace('%language%',language))
-					grunt.file.write(file.dest.replace('%language%',language), contents);
 					// Print a success message.
 					grunt.log.writeln('Rendered HTML file to "' + file.dest + '"');
 				});
@@ -203,51 +212,3 @@ module.exports = function(grunt) {
 		}
 	});
 };
-
-/**
-#!/usr/bin/env node
-var express         = require('express'),
-	app             = express(),
-	gettext         = require('node-gettext'),
-	gt              = new gettext(),
-	fs              = require('fs'),
-	ejs             = require('ejs'),
-	i18n            = require('i18n-abide'),
-	str             = fs.readFileSync('view/index.html', 'utf8');
-
-app.use(i18n.abide({
-	supported_languages: ['en', 'ru', 'uk'],
-	default_lang: 'en',
-	translation_directory: 'static/i18n'
-}));
-
-var domain          = 'ru';
-var fileContents = fs.readFileSync('./locale/'+domain+'/messages.po');
-gt.textdomain(domain);
-gt.addTextdomain(domain , fileContents);
-
-var gt2 = function(input){
-	return input;
-};
-
-
-console.log('this', this);
-console.info('gt.gettext', gt.gettext('Hello World'));
-var that = this;
-gt_apply = function(){
-	console.log('will run gt.gettext.apply with ', that, arguments);
-	//call, apply, bind
-	console.log(gt.gettext);
-	return gt.gettext(arguments[0]);
-};
-console.info('gt_apply', gt_apply('Hello World'));
-
-var o = ejs.render(
-	str, //'view/index.html',
-	{ gt: gt, gettext:gt_apply}
-);
-
-console.log(o);
-
-console.log('Done');
-*///
