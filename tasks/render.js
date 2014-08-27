@@ -169,14 +169,13 @@ module.exports = function(grunt) {
 		if(options.languages && options.languages.length && options.locales ) {
 			var that = this;
 			options.languages.forEach(function (language) {
+				options.lang = language;
 				var fileContents = fs.readFileSync(options.locales.replace('%language%',language));
 				gt.textdomain(language);
 				gt.addTextdomain(language , fileContents);
 
 				grunt.log.writeln('Processing',language.toUpperCase(),'...');
 				that.files.forEach(function(file) {
-
-					console.log(file.src);
 
 					var contents = file.src.map(function(filepath) {
 						options.filename = filepath;
@@ -186,15 +185,12 @@ module.exports = function(grunt) {
 					file.src.forEach(function(filepath){
 						contents = render(filepath, options);
 						filepath = filepath.replace(options.toReplace, file.dest.replace('%language%',language));
-
-						console.log(filepath);
-
 						grunt.file.write(filepath, contents);
 					});
 
 					// Write joined contents to destination filepath.
 					// Print a success message.
-					grunt.log.writeln('Rendered HTML file to "' + file.dest + '"');
+					grunt.log.writeln('Rendered HTML files DONE;');
 				});
 			});
 		} else {
