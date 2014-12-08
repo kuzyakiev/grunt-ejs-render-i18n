@@ -11,8 +11,7 @@
 
 module.exports = function(grunt) {
 
-	var ejs 	= require('ejs'),
-		path 	= require('path'),
+	var path 	= require('path'),
 		fs 		= require('fs'),
 		marked 	= require('marked'),
 		_ 		= require('lodash'),
@@ -80,34 +79,14 @@ module.exports = function(grunt) {
 			}
 		});
 
-
 		this.files.forEach(function(file) {
-			console.log(file.dest);
-
-
 			var contents = file.src.map(function(filepath) {
-				console.log('>>', filepath);
-				//options.filename = filepath;
 				return generate_config(filepath, options);
 			});
 
-
-			var result = {}
+			var result = {};
 			contents.unshift(result);
 			_.extend.apply(_, contents);
-			console.log(result);
-
-
-
-			/*var merged = [];
-			merged = merged.concat.apply(merged, contents).sort();
-			merged = merged.filter(function(item, pos) {
-				return !pos || item != merged[pos - 1];
-			});
-
-
-			console.log('=======');
-			console.log(merged);*/
 
 			// Write joined contents to destination filepath.
 			grunt.file.write(file.dest,  JSON.stringify(result) );

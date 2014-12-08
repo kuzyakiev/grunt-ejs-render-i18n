@@ -50,7 +50,6 @@ module.exports = function(grunt) {
 				}
 			});
 
-			console.log(res);
 			return res;
 		} else {
 			grunt.log.warn('File "' + filepath + '" not found.');
@@ -169,8 +168,6 @@ module.exports = function(grunt) {
 			templates[tplName] = _.template(grunt.file.read(tpl));
 		});
 
-		console.log('templates', templates); // @rm
-
 		//add default methods if not already set
 		options.helpers = _.defaults(options.helpers, methods);
 
@@ -219,11 +216,8 @@ module.exports = function(grunt) {
 			});
 		} else {
 			this.files.forEach(function(file) {
-				console.log(file.dest);
-
 
 				var contents = file.src.map(function(filepath) {
-					console.log('>>', filepath);
 					options.filename = filepath;
 					return collect_i18n(filepath, options);
 				});
@@ -233,10 +227,6 @@ module.exports = function(grunt) {
 				merged = merged.filter(function(item, pos) {
 					return !pos || item != merged[pos - 1];
 				});
-
-
-				console.log('=======');
-				console.log(merged);
 
 				// Write joined contents to destination filepath.
 				grunt.file.write(file.dest,  "<%- gettext('" + merged.join("') %>\n<%- gettext('") + "') %>" );
