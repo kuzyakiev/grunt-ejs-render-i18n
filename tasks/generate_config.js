@@ -87,9 +87,9 @@ module.exports = function(grunt) {
 			var result = {};
 			contents.unshift(result);
 			_.extend.apply(_, contents);
-
+			result = 'var config = ' + JSON.stringify(result);rite a
 			// Write joined contents to destination filepath.
-			grunt.file.write(file.dest,  JSON.stringify(result) );
+			grunt.file.write(file.dest, result);
 			// Print a success message.
 			grunt.log.writeln('Rendered HTML file to "' + file.dest + '"');
 		});
