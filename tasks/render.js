@@ -170,6 +170,7 @@ module.exports = function(grunt) {
 			var that = this;
 			options.languages.forEach(function (language) {
 				options.lang = language;
+				options.isDev = !!options.isDev;
 				var fileContents = fs.readFileSync(options.locales.replace('%language%',language));
 				gt.textdomain(language);
 				gt.addTextdomain(language , fileContents);
